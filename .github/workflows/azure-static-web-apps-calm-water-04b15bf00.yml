@@ -47,6 +47,7 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
 
           ###### Repository/Build Configurations ######
+          ###### Repository/Build Configurations ######
           app_location: "/"
           api_location: ""
           output_location: "build"
