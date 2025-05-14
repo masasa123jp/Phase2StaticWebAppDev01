@@ -5,19 +5,25 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - closed
     branches:
       - main
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' ||
-        (github.event_name == 'pull_request' && github.event.action != 'closed')
+    # プッシュまたはプルリク作成／更新時にのみ実行
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Calm Water
     permissions:
-      id-token: write
-      contents: read
+      id-token: write        # OIDC トークン発行に必要
+      contents: read         # リポジトリ読み取り
 
     steps:
       - name: Checkout repository
@@ -26,36 +32,33 @@ jobs:
           submodules: true
           lfs: false
 
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
-
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
         with:
           result-encoding: string
           script: |
-            // core は既定で定義済み
+            // core は事前に注入済みなのでそのまま利用
             return await core.getIDToken();
 
-      - name: Build And Deploy to Calm Water
-        id: builddeploy
+      - name: Deploy to Azure Static Web Apps (Calm Water)
         uses: Azure/static-web-apps-deploy@v1
         with:
+          # Azure Portal の Manage deployment token を
+          # secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 に登録済み
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
           action: upload
           github_id_token: ${{ steps.idtoken.outputs.result }}
 
-          ###### Repository/Build Configurations ######
-          ###### Repository/Build Configurations ######
-          app_location: "/"
-          api_location: ""
-          output_location: "build"
-          app_build_command: "npm run build"
-          production_branch: "main"
-          ###### End of Configurations ######
+          ###### スキップビルド設定 ######
+          # 静的ファイル（test.html 等）のみをルート直下から配信するため、Oryx ビルドをスキップ
+          skip_app_build: true
+          app_location: "/"         # リポジトリルートを配信対象に
+          output_location: ""       # ルート直下のファイルをそのまま使用
+          ############################
 
   close_pull_request_job:
+    # プルリククローズ時にのみ実行
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job (Calm Water)
