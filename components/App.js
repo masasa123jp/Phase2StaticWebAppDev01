@@ -29,6 +29,8 @@ export default {
       </div>
     </nav>
     <router-view></router-view>
+    <!-- 各ページ下部にプライバシーフッターを表示 -->
+    <PrivacyFooter />
     <footer class="text-center py-3 text-muted">© 2025 Project RORO</footer>
   `,
   setup() {
