@@ -79,10 +79,10 @@ const HomeView = {
       <section class="container my-5">
         <h2 class="text-center mb-4">協賛企業</h2>
         <div class="d-flex justify-content-around flex-wrap align-items-center">
-          <img src="https://via.placeholder.com/120x60?text=Logo1" alt="Logo1" class="m-2" />
-          <img src="https://via.placeholder.com/120x60?text=Logo2" alt="Logo2" class="m-2" />
-          <img src="https://via.placeholder.com/120x60?text=Logo3" alt="Logo3" class="m-2" />
-          <img src="https://via.placeholder.com/120x60?text=Logo4" alt="Logo4" class="m-2" />
+          <img src="./assets/logos/logo1.png" alt="Logo1" class="m-2" />
+          <img src="./assets/logos/logo2.png" alt="Logo2" class="m-2" />
+          <img src="./assets/logos/logo3.png" alt="Logo3" class="m-2" />
+          <img src="./assets/logos/logo4.png" alt="Logo4" class="m-2" />
         </div>
       </section>
 

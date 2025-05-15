@@ -6,28 +6,40 @@
   <title>Project RORO – Phase 2 SPA Demo</title>
 
   <!-- Bootstrap 5 CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
   <!-- Bootstrap Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  />
   <!-- Custom CSS -->
   <link href="style.css" rel="stylesheet" />
+  <link rel="icon" href="./assets/icon/favicon.png" type="image/x-icon">
 </head>
 <body>
   <!-- SPA mount point -->
   <div id="app"></div>
 
-  <!-- Vue 3 -->
+  <!-- Vue 3 & Vue Router 4 -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <!-- Vue Router 4 -->
   <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.prod.js"></script>
-  <!-- コンポーネントのスクリプト -->
-  <script src="views/HomeView.js"></script>
-  <script src="views/ChatView.js"></script>
-  <script src="views/AlbumView.js"></script>
-  <script src="views/SettingsView.js"></script>
-  <script src="views/ReportView.js"></script>
+
+  <!-- Bootstrap Bundle JS (Popper 含む) -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"
+  ></script>
+
+  <!-- ビューコンポーネントを先に読み込む -->
+  <script src="./views/HomeView.js"></script>
+  <script src="./views/ChatView.js"></script>
+  <script src="./views/AlbumView.js"></script>
+  <script src="./views/SettingsView.js"></script>
+  <script src="./views/ReportView.js"></script>
 
   <!-- メインスクリプト -->
-  <script src="main.js"></script>
+  <script src="./main.js"></script>
 </body>
 </html>
