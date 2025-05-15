@@ -1,5 +1,6 @@
 // views/HomeView.js
-export default {
+
+const HomeView = {
   template: `
     <div class="container py-4">
       <h3>ホーム</h3>
@@ -9,6 +10,5 @@ export default {
         <li>アルバム: 対話から生成した日記・絵本を閲覧します。</li>
         <li>設定: プロフィールや通知設定など。</li>
       </ul>
-    </div>
-  `
+    </div>`
 };

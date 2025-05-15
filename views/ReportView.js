@@ -1,16 +1,16 @@
 // views/ReportView.js
-import { ref } from 'vue';
 
-export default {
+// import 文や export default を使わず、Vueグローバルで実装
+const ReportView = {
   setup() {
-    // サンプル個人データ
-    const dogBreed = ref('');
-    const dogAge = ref('');
-    const address = ref('');
-    const concern = ref('');
-    const email = ref('');
-    const reportHtml = ref('');
-    const sent = ref(false);
+    // Composition API は Vue.xxx で取得
+    const dogBreed = Vue.ref('');
+    const dogAge = Vue.ref('');
+    const address = Vue.ref('');
+    const concern = Vue.ref('');
+    const email = Vue.ref('');
+    const reportHtml = Vue.ref('');
+    const sent = Vue.ref(false);
 
     // 疾患統計データ例
     const diseaseStats = {
@@ -139,3 +139,7 @@ export default {
     </div>
   `
 };
+
+// ルーターで使用するため、main.jsやrouter.jsで
+// { path: '/report', component: ReportView, name: 'report' }
+// として登録してください。

@@ -1,5 +1,6 @@
 // views/AlbumView.js
-export default {
+
+const AlbumView = {
   template: `
     <div class="container py-4">
       <h3>アルバム（サンプル）</h3>
@@ -20,6 +21,5 @@ export default {
           </div>
         </div>
       </div>
-    </div>
-  `
+    </div>`
 };

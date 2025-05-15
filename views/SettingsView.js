@@ -1,5 +1,6 @@
 // views/SettingsView.js
-export default {
+
+const SettingsView = {
   template: `
     <div class="container py-4">
       <h3>設定</h3>
@@ -23,6 +24,5 @@ export default {
           <button class="btn btn-primary" type="button">保存</button>
         </div>
       </form>
-    </div>
-  `
+    </div>`
 };
