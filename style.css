@@ -1,0 +1,87 @@
+/* style.css */
+
+/* 全体の背景色 */
+body {
+  background-color: #f8f9fa;
+}
+
+/* チャットボディのスタイル */
+.chat-body {
+  height: 60vh;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+}
+
+/* メッセージのスタイル */
+.msg {
+  max-width: 80%;
+  border-radius: 1rem;
+  padding: 0.5rem 0.8rem;
+  margin: 0.3rem 0;
+}
+
+/* ユーザーメッセージのスタイル */
+.user {
+  margin-left: auto;
+  background-color: #0d6efd;
+  color: #ffffff;
+}
+
+/* AIメッセージのスタイル */
+.ai {
+  margin-right: auto;
+  background-color: #e9ecef;
+}
+
+/* ホーム画面のヒーローセクション */
+.hero {
+  background-image: url('path_to_your_image.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 100px 0;
+  position: relative;
+  text-align: center;
+}
+
+/* ヒーローセクションのオーバーレイ */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ヒーローセクションのテキスト */
+.hero-text {
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+}
+
+/* サービスカードのスタイル */
+.service-card {
+  transition: transform 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+}
+
+/* ニュースアイテムのスタイル */
+.news-item {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* テスティモニアルのスタイル */
+.testimonial {
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
