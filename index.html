@@ -1,3 +1,183 @@
-test
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project RORO – Phase 2 SPA Demo</title>
 
-test
+  <!-- Bootstrap 5 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <style>
+    body { background:#f8f9fa; }
+    .chat-body { height:60vh; overflow-y:auto; padding:1rem; background:#fff; border:1px solid #dee2e6; border-radius:.5rem;}
+    .msg { max-width:80%; border-radius:1rem; padding:.5rem .8rem; margin:.3rem 0; }
+    .user { margin-left:auto; background:#0d6efd; color:#fff; }
+    .ai   { margin-right:auto; background:#e9ecef; }
+  </style>
+</head>
+<body>
+  <!-- SPA mount point -->
+  <div id="app"></div>
+
+  <!-- CDN Vue 3 & Router -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.prod.js"></script>
+  <script type="module">
+    const { createApp, reactive, ref, onMounted } = Vue;
+    const { createRouter, createWebHashHistory } = VueRouter;
+
+    /* ========= グローバル状態 ========= */
+    const store = reactive({
+      messages: [
+        { who:'ai', text:'こんにちは！わんちゃんの様子はいかがですか？' }
+      ]
+    });
+
+    /* ========= View: Home ========= */
+    const HomeView = {
+      template: `
+        <div class="container py-4">
+          <h3>ホーム</h3>
+          <p>Project RORO へようこそ。上部ナビゲーションから機能をお試しください。</p>
+          <ul>
+            <li>チャット: AIと対話しながらペットの記録や相談ができます。</li>
+            <li>アルバム: 対話から生成した日記・絵本を閲覧します。</li>
+            <li>設定: プロフィールや通知設定など。</li>
+          </ul>
+        </div>`
+    };
+
+    /* ========= View: Chat ========= */
+    const ChatView = {
+      setup() {
+        const input = ref('');
+        function send() {
+          if (!input.value.trim()) return;
+          store.messages.push({ who:'user', text:input.value });
+          const echo = `「${input.value}」についてですね。詳しく教えてください！`;
+          setTimeout(()=>store.messages.push({ who:'ai', text:echo }), 600);
+          input.value='';
+        }
+        onMounted(()=>{ 
+          const el=document.getElementById('chatScroll');
+          el.scrollTop = el.scrollHeight;
+        });
+        return { store, input, send };
+      },
+      template: `
+        <div class="container py-4">
+          <h3>チャット</h3>
+          <div id="chatScroll" class="chat-body mb-3">
+            <div v-for="(m,i) in store.messages" :key="i"
+                 :class="['msg', m.who==='user' ? 'user' : 'ai']">
+              {{m.text}}
+            </div>
+          </div>
+          <div class="input-group">
+            <input v-model="input" @keyup.enter="send" class="form-control" placeholder="メッセージを入力…" />
+            <button @click="send" class="btn btn-primary"><i class="bi bi-send"></i></button>
+          </div>
+        </div>`
+    };
+
+    /* ========= View: Album ========= */
+    const AlbumView = {
+      template: `
+        <div class="container py-4">
+          <h3>アルバム（サンプル）</h3>
+          <p>ここに生成済みの日記・絵本サムネイルをカード表示します。</p>
+          <div class="row row-cols-1 row-cols-md-3 g-3">
+            <div class="col" v-for="n in 6" :key="n">
+              <div class="card h-100">
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder"
+                     preserveAspectRatio="xMidYMid slice" focusable="false">
+                  <title>Placeholder</title>
+                  <rect width="100%" height="100%" fill="#868e96"></rect>
+                  <text x="50%" y="50%" fill="#dee2e6" dy=".3em" text-anchor="middle">Diary #{{n}}</text>
+                </svg>
+                <div class="card-body">
+                  <p class="card-text small">わんちゃんとの思い出を振り返ろう！</p>
+                  <a href="#" class="stretched-link">開く</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`
+    };
+
+    /* ========= View: Settings ========= */
+    const SettingsView = {
+      template: `
+        <div class="container py-4">
+          <h3>設定</h3>
+          <form class="row g-3" style="max-width:500px">
+            <div class="col-12">
+              <label class="form-label">オーナー名</label>
+              <input type="text" class="form-control" placeholder="例: 田中 花子" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">ペット名</label>
+              <input type="text" class="form-control" placeholder="例: ココ" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">通知</label>
+              <select class="form-select">
+                <option selected>ON</option>
+                <option>OFF</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-primary" type="button">保存</button>
+            </div>
+          </form>
+        </div>`
+    };
+
+    /* ========= ルーター定義 ========= */
+    const routes = [
+      { path:'/',          component:HomeView,    name:'home' },
+      { path:'/chat',      component:ChatView,    name:'chat' },
+      { path:'/album',     component:AlbumView,   name:'album' },
+      { path:'/settings',  component:SettingsView,name:'settings' }
+    ];
+    const router = createRouter({ history:createWebHashHistory(), routes });
+
+    /* ========= ルート App ========= */
+    const App = {
+      template: `
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">RORO</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-expanded="false">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="nav" class="collapse navbar-collapse">
+              <ul class="navbar-nav me-auto">
+                <li class="nav-item" v-for="l in links" :key="l.to">
+                  <router-link class="nav-link" :to="l.to">{{l.label}}</router-link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <router-view></router-view>
+        <footer class="text-center py-3 text-muted">© 2025 Project RORO</footer>`,
+      setup() {
+        return {
+          links:[
+            {label:'ホーム',   to:{name:'home'}},
+            {label:'チャット', to:{name:'chat'}},
+            {label:'アルバム', to:{name:'album'}},
+            {label:'設定',     to:{name:'settings'}}
+          ]
+        };
+      }
+    };
+
+    /* ========= 起動 ========= */
+    createApp(App).use(router).mount('#app');
+  </script>
+</body>
+</html>
