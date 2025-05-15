@@ -1,26 +1,24 @@
 // views/ReportView.js
 
-// import 文や export default を使わず、Vueグローバルで実装
 const ReportView = {
   setup() {
-    // Composition API は Vue.xxx で取得
-    const dogBreed = Vue.ref('');
-    const dogAge = Vue.ref('');
-    const address = Vue.ref('');
-    const concern = Vue.ref('');
-    const email = Vue.ref('');
+    const dogBreed   = Vue.ref('');
+    const dogAge     = Vue.ref('');
+    const address    = Vue.ref('');
+    const concern    = Vue.ref('');
+    const email      = Vue.ref('');
     const reportHtml = Vue.ref('');
-    const sent = Vue.ref(false);
+    const sent       = Vue.ref(false);
 
     // 疾患統計データ例
     const diseaseStats = {
       'トイプードル': {
         '10': '膝蓋骨脱臼に注意。運動量とフードに気をつけましょう。',
-        '3': 'アレルギーや皮膚疾患が増加。こまめなケアを。'
+        '3':  'アレルギーや皮膚疾患が増加。こまめなケアを。'
       },
       '柴犬': {
         '10': 'シニア期の腎臓ケアと定期健診が推奨されます。',
-        '3': 'アトピー性皮膚炎のリスクあり。早期対策を。'
+        '3':  'アトピー性皮膚炎のリスクあり。早期対策を。'
       }
     };
 
@@ -32,9 +30,9 @@ const ReportView = {
 
     // 教材提案
     const concernBooks = {
-      'しつけ': 'オススメ本：「犬のしつけ完全ガイド」',
-      '健康': 'オススメ本：「長生き犬ごはん」',
-      'ダイエット': 'オススメ本：「愛犬のための健康ダイエット」'
+      'しつけ':    'オススメ本：「犬のしつけ完全ガイド」',
+      '健康':      'オススメ本：「長生き犬ごはん」',
+      'ダイエット':'オススメ本：「愛犬のための健康ダイエット」'
     };
 
     function generateReport() {
@@ -55,7 +53,7 @@ const ReportView = {
 
       // 例②：地域×メーカー
       if (address.value) {
-        let pref = address.value.substring(0, 3); // 簡易都道府県判定
+        let pref = address.value.substring(0, 3); // 簡易 都道府県判定
         let regionMsg = regionShops[pref] || 'お近くの動物病院やカフェは検索サイトでご確認ください。';
         result += `<h5>● 地域のお役立ち情報</h5><p>${regionMsg}</p>`;
       }
@@ -66,24 +64,61 @@ const ReportView = {
         result += `<h5>● 教材のご提案</h5><p>${cMsg}</p>`;
       }
 
-      if (!result) result = '入力内容に応じたレポートを生成します。';
+      if (!result) {
+        result = '<p>入力内容に応じたレポートを生成します。</p>';
+      }
+
       reportHtml.value = result;
       sent.value = false;
+
+      // Chart.js でグラフ更新（任意）
+      if (window.reportChart) {
+        window.reportChart.data.datasets[0].data = [
+          dogBreed.value ? 1 : 0,
+          address.value  ? 1 : 0,
+          concern.value  ? 1 : 0
+        ];
+        window.reportChart.update();
+      }
     }
 
     function sendMail() {
-      // 本来はAPI経由で送信
+      // 本来は API 経由で送信実装
       sent.value = true;
     }
 
+    Vue.onMounted(() => {
+      // Chart.js 初期化
+      const ctx = document.getElementById('reportChart').getContext('2d');
+      window.reportChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['健康アドバイス','施設紹介','教材提案'],
+          datasets: [{
+            label: '提案項目数',
+            data: [0,0,0],
+            backgroundColor: ['#0d6efd','#198754','#ffc107']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, max: 1 }
+          }
+        }
+      });
+    });
+
     return {
-      dogBreed, dogAge, address, concern, email, reportHtml, sent, generateReport, sendMail
+      dogBreed, dogAge, address, concern,
+      email, reportHtml, sent, generateReport, sendMail
     };
   },
   template: `
     <div class="container py-4">
       <h3>カスタムレポート生成</h3>
-      <form class="row g-3" @submit.prevent="generateReport" style="max-width:600px">
+
+      <form class="row g-3" @submit.prevent="generateReport" style="max-width:600px;">
         <div class="col-6">
           <label class="form-label">犬種</label>
           <select class="form-select" v-model="dogBreed">
@@ -104,7 +139,7 @@ const ReportView = {
         </div>
         <div class="col-12">
           <label class="form-label">住所（都道府県）</label>
-          <input type="text" class="form-control" v-model="address" placeholder="例：東京都港区"/>
+          <input type="text" class="form-control" v-model="address" placeholder="例：東京都港区" />
         </div>
         <div class="col-12">
           <label class="form-label">気になっていること</label>
@@ -117,7 +152,7 @@ const ReportView = {
         </div>
         <div class="col-12">
           <label class="form-label">メールアドレス</label>
-          <input type="email" class="form-control" v-model="email" placeholder="example@domain.com"/>
+          <input type="email" class="form-control" v-model="email" placeholder="example@domain.com" />
         </div>
         <div class="col-12">
           <button type="submit" class="btn btn-primary">レポートを生成</button>
@@ -126,20 +161,19 @@ const ReportView = {
 
       <div v-if="reportHtml" class="my-4">
         <div class="card">
-          <div class="card-header">あなたへのオリジナルレポート</div>
+          <div class="card-header">オリジナルレポート</div>
           <div class="card-body">
+            <canvas id="reportChart" class="mb-3" height="100"></canvas>
             <div v-html="reportHtml"></div>
           </div>
-          <div class="card-footer">
-            <button class="btn btn-success" @click="sendMail" :disabled="sent || !email">メールで送信</button>
-            <span v-if="sent" class="text-success ms-3">メール送信しました！（モック）</span>
+          <div class="card-footer text-end">
+            <button class="btn btn-secondary me-2" @click="() => window.print()">PDFダウンロード</button>
+            <button class="btn btn-success" @click="sendMail" :disabled="sent || !email">
+              メールで送信
+            </button>
+            <span v-if="sent" class="text-success ms-2">送信完了！</span>
           </div>
         </div>
       </div>
-    </div>
-  `
+    </div>`
 };
-
-// ルーターで使用するため、main.jsやrouter.jsで
-// { path: '/report', component: ReportView, name: 'report' }
-// として登録してください。
