@@ -1,5 +1,13 @@
 // views/PrivacyView.js
-const PrivacyView = {
+
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'PrivacyView',
+  setup() {
+    // 特に状態を持たない静的コンポーネントのため、setup は空でOK
+    return {};
+  },
   template: `
     <div class="container py-4">
       <h3>プライバシーポリシー</h3>
@@ -11,9 +19,14 @@ const PrivacyView = {
       <h5>3. 第三者提供</h5>
       <p>法令に定める場合を除き、ユーザーの同意なく第三者に提供しません。</p>
       <h5>4. 保管・安全管理措置</h5>
-      <p>SSL/TLSによる通信暗号化、アクセス制限等で厳重に管理します。</p>
+      <p>TLSによる通信暗号化、アクセス制限等で厳重に管理します。</p>
       <h5>5. お問い合わせ</h5>
-      <p>個人情報に関するお問い合わせ・苦情は<a href="mailto:privacy@roro.example.com">privacy@roro.example.com</a>までご連絡ください。</p>
+      <p>個人情報に関するお問い合わせ・苦情は
+        <a href="mailto:privacy@roro.example.com">
+          privacy@roro.example.com
+        </a>
+        までご連絡ください。
+      </p>
     </div>
   `
-};
+});
