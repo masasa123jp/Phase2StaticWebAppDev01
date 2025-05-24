@@ -12,6 +12,7 @@ import AlbumView   from './views/AlbumView.js';
 import SettingsView from './views/SettingsView.js';
 import ReportView  from './views/ReportView.js';
 import PrivacyView from './views/PrivacyView.js';
+import AuthView from './views/AuthView.js';
 
 const routes = [
   { path: '/',        component: HomeView,      name: 'home'    },
@@ -19,7 +20,8 @@ const routes = [
   { path: '/album',   component: AlbumView,     name: 'album'   },
   { path: '/settings',component: SettingsView,  name: 'settings'},
   { path: '/report',  component: ReportView,    name: 'report'  },
-  { path: '/privacy', component: PrivacyView,   name: 'privacy' }
+  { path: '/privacy', component: PrivacyView,   name: 'privacy' },
+  { path: '/auth',     component: AuthView,     name: 'auth' }
 ];
 
 const router = createRouter({

@@ -13,6 +13,7 @@ export default defineComponent({
   setup() {
     const links = [
       { label: 'ホーム',       to: { name: 'home' } },
+      { label: 'ログイン', to: { name: 'auth' } },
       { label: 'チャット',     to: { name: 'chat' } },
       { label: 'アルバム',     to: { name: 'album' } },
       { label: '設定',         to: { name: 'settings' } },
