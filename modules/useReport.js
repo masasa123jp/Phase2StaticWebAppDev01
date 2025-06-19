@@ -1,74 +1,43 @@
 // modules/useReport.js
-
 import { ref } from 'vue';
+import { diseaseStats, regionShops, concernBooks } from './reportData.js';
 
-/**
- * useReport:
- * ユーザー入力に基づくカスタムレポートの送信・受信・表示処理を担うComposition APIフック。
- * ペット単位でのレポート生成に対応するよう拡張済み。
- */
 export function useReport() {
-  // ペットの入力状態（フォームバインディング用）
-  const petName    = ref('');
-  const species    = ref('');
-  const breed      = ref('');
-  const age        = ref('');
+  const dogBreed   = ref('');
+  const dogAge     = ref('');
+  const address    = ref('');
+  const concern    = ref('');
   const email      = ref('');
-
-  // レポートの結果および状態管理
   const reportHtml = ref('');
   const sent       = ref(false);
-  const loading    = ref(false);
 
-  /**
-   * generateReport:
-   * APIに対してレポート生成リクエストをPOSTで送信。
-   * 生成結果のダウンロードURLまたはエラーメッセージをHTMLで表示。
-   */
-  async function generateReport() {
-    reportHtml.value = '';
-    sent.value = false;
-    loading.value = true;
+  function generateReport() {
+    let html = '';
 
-    try {
-      const res = await fetch('/api/reports/custom', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          pet_name: petName.value,
-          species: species.value,
-          breed: breed.value,
-          age: age.value,
-          email: email.value
-        })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        // レポート生成成功時
-        reportHtml.value = `
-          <h5>✔️ レポート生成完了</h5>
-          <p>ダウンロードリンク: <a href="${data.download_url}" target="_blank">${data.download_url}</a></p>
-        `;
-      } else {
-        // API側からのエラーを表示
-        reportHtml.value = `<p class="text-danger">レポート生成に失敗しました: ${data.detail}</p>`;
-      }
-    } catch (err) {
-      // 通信エラーなど
-      reportHtml.value = `<p class="text-danger">エラーが発生しました: ${err.message}</p>`;
-    } finally {
-      loading.value = false;
+    if (dogBreed.value && dogAge.value) {
+      const msg = (diseaseStats[dogBreed.value]?.[dogAge.value])
+        || 'データがありませんが、定期健診をおすすめします。';
+      html += `<h5>● 年齢・犬種別健康アドバイス</h5><p>${msg}</p>`;
     }
+
+    if (address.value) {
+      const pref = address.value.slice(0, 3);
+      const shop = regionShops[pref] || '検索サイトでご確認ください。';
+      html += `<h5>● 地域のお役立ち情報</h5><p>${shop}</p>`;
+    }
+
+    if (concern.value) {
+      const book = concernBooks[concern.value] || 'お問い合わせください。';
+      html += `<h5>● 教材のご提案</h5><p>${book}</p>`;
+    }
+
+    reportHtml.value = html || '<p>入力内容に応じたレポートを生成します。</p>';
+    sent.value = false;
   }
 
-  // 外部に公開する状態と関数
   return {
-    petName, species, breed, age, email,
-    reportHtml, sent, loading,
+    dogBreed, dogAge, address, concern, email,
+    reportHtml, sent,
     generateReport
   };
 }
