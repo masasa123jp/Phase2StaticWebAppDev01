@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project RORO – Phase 2 SPA Demo</title>
+  <!-- Bootstrap 5 & Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" href="./assets/icon/favicon.png" type="image/x-icon">
+  <!-- Import Map 定義 -->
+  <script type="importmap">
+  {
+    "imports": {
+      "vue":        "https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js",
+      "vue-router": "https://unpkg.com/vue-router@4/dist/vue-router.esm-browser.prod.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <!-- Vue & Bootstrap -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.prod.js"></script>
+
+  <!-- Bootstrap Bundle JS (Popper 含む) -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"
+  ></script>
+
+  <!-- ビューコンポーネントを先に読み込む -->
+  <script type="module" src="./views/HomeView.js"></script>
+  <script type="module" src="./views/ChatView.js"></script>
+  <script type="module" src="./views/AlbumView.js"></script>
+  <script type="module" src="./views/SettingsView.js"></script>
+  <script type="module" src="./views/ReportView.js"></script>
+  <script type="module" src="./views/PrivacyView.js"></script>
+  <script type="module" src="./views/AuthView.js"></script>
+  <script type="module" src="./components/PrivacyFooter.js"></script>
+
+  <!-- メインスクリプト -->
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
