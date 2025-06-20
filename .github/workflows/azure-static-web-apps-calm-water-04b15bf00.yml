@@ -3,14 +3,13 @@ name: Azure Static Web Apps CI/CD (Calm Water)
 on:
   push:
     branches:
-      - main  # main ブランチへの push 時に実行
+      - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches: [main]  # main に対する PR 操作時に実行
+    branches: [main]
 
 jobs:
   build_and_deploy_job:
-    # push または PR 作成/更新時にのみ実行。PR の close は対象外。
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.action != 'closed')
@@ -18,34 +17,35 @@ jobs:
     name: Build and Deploy Calm Water
 
     permissions:
-      id-token: write    # OIDC トークン取得のため
-      contents: read     # リポジトリ読み取りに必要
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: true  # サブモジュールがあれば取得
-          lfs: false        # LFS 対応が不要であれば false
+          submodules: true
+          lfs: false
 
+      # ✅ 修正：github-script を使う場合、script 部分は "純粋な JS" で記述
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
         with:
           result-encoding: string
           script: |
-            return await core.getIDToken();  # Azure SWA へトークンを送信するため取得
+            // 以下はJSとして有効なコードです
+            return await core.getIDToken();
 
+      # 👇 デプロイ設定は変更なし
       - name: Deploy to Azure Static Web Apps (Calm Water)
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # Azure Portal で取得したデプロイトークンを GitHub Secrets に登録し参照
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}         # GitHub 連携に必要
-          github_id_token: ${{ steps.idtoken.outputs.result }}  # OIDC トークン
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          github_id_token: ${{ steps.idtoken.outputs.result }}
 
-          # ──────── ビルド不要の完全静的サイト向け設定 ────────
-          skip_app_build: true       # Oryx によるビルドをスキップ :contentReference[oaicite:1]{index=1}
-          app_location: "/"          # リポジトリルートを配信対象ディレクトリに指定
-          output_location: ""        # ビルド不要なので空文字。Oryxに出力ディレクトリを探させない :contentReference[oaicite:2]{index=2}
-          # ────────────────────────────────────────────────
+          # ビルド不要の静的サイト向け設定
+          skip_app_build: true
+          app_location: "/"
+          output_location: ""
