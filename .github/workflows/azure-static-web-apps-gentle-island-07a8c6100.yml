@@ -3,27 +3,28 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     branches:
-      - main
+      - main  # mainブランチへのpush時に実行
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches: [main]
+    branches: [main]  # mainを対象としたPR時に実行
 
 jobs:
   build_and_deploy_job:
-    # push または PR の作成・更新時のみ実行（closeは除外）
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    # push時またはPR作成/更新時のみ実行（PRクローズはスキップ）
+    if: github.event_name == 'push' ||
+        (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
 
     permissions:
-      id-token: write   # OIDC トークン発行に必要
-      contents: read    # リポジトリ読み取りに必要
+      id-token: write   # OIDCトークン取得に必要
+      contents: read    # リポジトリ内容を読み取るため
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: true
+          submodules: true  # サブモジュールがあれば取得
           lfs: false
 
       - name: Get OIDC Id Token
@@ -32,24 +33,24 @@ jobs:
         with:
           result-encoding: string
           script: |
-            // GitHub OIDCトークンを安全に取得
+            // GitHubからOIDCトークンを取得（Azureデプロイ用）
             return await core.getIDToken();
 
-      - name: Build And Deploy
-        id: builddeploy
+      - name: Build And Deploy to Azure SWA
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # 必須：Azure から取得したトークンを GitHub Secrets に登録しておくこと
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GENTLE_ISLAND_07A8C6100 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}           # GitHub連携に使用
-          github_id_token: ${{ steps.idtoken.outputs.result }}
-          action: upload                                   # デプロイ実行モード
+          # Azureポータルで取得したデプロイトークンをGitHubシークレットに登録しておく
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}                  # GitHub連携に使用
+          github_id_token: ${{ steps.idtoken.outputs.result }}     # OIDCトークン
+          action: upload                                          # デプロイ実行モード
 
-          # ─── 静的ビルド不要設定 ───
-          skip_app_build: true                             # Oryxによるビルドをスキップ :contentReference[oaicite:1]{index=1}
-          app_location: "/"                                # ルート直下の静的ファイルを対象とする
-          output_location: ""                              # ビルド不要のため空文字で指定
-          # ──────────────────────────
+          # ─── 静的サイト向け設定 ────────────────────────────
+          skip_app_build: true                                    # Oryxビルドをスキップ
+          app_location: "/"                                       # ルート直下のファイルを対象
+          output_location: ""                                     # ビルド不要なので空指定
+          skip_deploy_on_missing_secrets: true                   # PR時にトークンが未設定ならデプロイ自体をスキップ :contentReference[oaicite:1]{index=1}
+          # ────────────────────────────────────────────
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -57,8 +58,8 @@ jobs:
     name: Close Pull Request Job
 
     steps:
-      - name: Close Pull Request
+      - name: Close SWA preview environment
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GENTLE_ISLAND_07A8C6100 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
           action: close
