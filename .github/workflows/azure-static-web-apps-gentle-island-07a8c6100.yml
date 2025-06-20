@@ -6,41 +6,59 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build_and_deploy_job:
+    # push または PR の作成・更新時のみ実行（closeは除外）
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+
+    permissions:
+      id-token: write   # OIDC トークン発行に必要
+      contents: read    # リポジトリ読み取りに必要
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
+
+      - name: Get OIDC Id Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+          result-encoding: string
+          script: |
+            // GitHub OIDCトークンを安全に取得
+            return await core.getIDToken();
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
+          # 必須：Azure から取得したトークンを GitHub Secrets に登録しておくこと
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GENTLE_ISLAND_07A8C6100 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "" # Built app content directory - optional
-          ###### End of Repository/Build Configurations ######
+          repo_token: ${{ secrets.GITHUB_TOKEN }}           # GitHub連携に使用
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          action: upload                                   # デプロイ実行モード
+
+          # ─── 静的ビルド不要設定 ───
+          skip_app_build: true                             # Oryxによるビルドをスキップ :contentReference[oaicite:1]{index=1}
+          app_location: "/"                                # ルート直下の静的ファイルを対象とする
+          output_location: ""                              # ビルド不要のため空文字で指定
+          # ──────────────────────────
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job
+
     steps:
       - name: Close Pull Request
-        id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GENTLE_ISLAND_07A8C6100 }}
-          action: "close"
+          action: close
