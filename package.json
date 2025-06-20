@@ -1,7 +1,15 @@
 {
+  "name": "Phase2StaticWebAppDev01",
+  "version": "1.0.0",
+  "description": "My static web app using Chart.js and jsPDF",
   "dependencies": {
     "chart.js": "^4.4.9",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2"
-  }
+  },
+  "scripts": {
+
+  },
+  "author": "",
+  "license": "MIT"
 }
