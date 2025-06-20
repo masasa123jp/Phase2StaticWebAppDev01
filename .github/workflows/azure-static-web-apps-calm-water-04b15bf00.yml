@@ -17,35 +17,47 @@ jobs:
     name: Build and Deploy Calm Water
 
     permissions:
-      id-token: write
-      contents: read
+      id-token: write    # OIDCトークン取得に必要
+      contents: read     # リポジトリ読み取りに必要
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: true
-          lfs: false
+          submodules: true  # サブモジュールを使用する場合に取得
+          lfs: false        # LFSは不要なら false
 
-      # ✅ 修正：github-script を使う場合、script 部分は "純粋な JS" で記述
-      - name: Get Id Token
+      - name: Get OIDC Id Token
         uses: actions/github-script@v6
         id: idtoken
         with:
           result-encoding: string
           script: |
-            // 以下はJSとして有効なコードです
+            // GitHub OIDCトークンを取得
             return await core.getIDToken();
 
-      # 👇 デプロイ設定は変更なし
-      - name: Deploy to Azure Static Web Apps (Calm Water)
+      - name: Build and Deploy to Azure SWA
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           github_id_token: ${{ steps.idtoken.outputs.result }}
+          action: upload                         # デプロイアクションを指定
+          
+          # ─────────── 静的サイト向け設定 ───────────
+          skip_app_build: true                   # Oryx によるビルドチェック回避
+          app_location: "/"                      # 配信対象はリポジトリルート
+          output_location: ""                    # ビルド不要でそのまま配信
+          # ── PRからビルド→デプロイ処理を除外 ──
+          skip_deploy_on_missing_secrets: true   # シークレット未設定時はデプロイをスキップ :contentReference[oaicite:3]{index=3}
 
-          # ビルド不要の静的サイト向け設定
-          skip_app_build: true
-          app_location: "/"
-          output_location: ""
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close SWA preview environment
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
+          action: close
