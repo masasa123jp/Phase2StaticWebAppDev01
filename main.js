@@ -1,15 +1,26 @@
 // main.js
-import { createApp } from 'vue';
-import router from './router.js';
-import App from './components/App.js';
+import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "./views/HomeView.js";
+import ChatView from "./views/ChatView.js";
+import AlbumView from "./views/AlbumView.js";
+import SettingsView from "./views/SettingsView.js";
+import ReportView from "./views/ReportView.js";
+import PrivacyView from "./views/PrivacyView.js";
+import AuthView from "./views/AuthView.js";
 
-// アプリケーション生成
-const app = createApp(App);
+const routes = [
+  { path: "/", component: HomeView },
+  { path: "/chat", component: ChatView },
+  { path: "/album", component: AlbumView },
+  { path: "/settings", component: SettingsView },
+  { path: "/report", component: ReportView },
+  { path: "/privacy", component: PrivacyView },
+  { path: "/auth", component: AuthView }
+];
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+});
 
-// Vue Router を組み込む
-app.use(router);
-
-// 全ページ共通の PrivacyFooter は App 内で定義しているため、ここで改めて登録不要
-
-// マウント
-app.mount('#app');
+createApp({}).use(router).mount("#app");
