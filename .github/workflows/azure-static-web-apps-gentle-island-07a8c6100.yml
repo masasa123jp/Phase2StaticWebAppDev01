@@ -2,23 +2,21 @@ name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches:
-      - main    # main ブランチへの push に反応
+    branches: [main]        # main ブランチへの push 実行
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches: [main]  # main に対する PR 操作に反応
+    branches: [main]
 
 jobs:
   build_and_deploy_job:
-    # push または PR 作成/更新時のみ実行（PR close は除く）
     if: github.event_name == 'push' ||
         (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Deploy Static Web App
+    name: Build and Deploy Static Web App
 
     permissions:
-      id-token: write   # OIDC トークン取得に必須
-      contents: read    # リポジトリ読み取りのため
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -33,7 +31,6 @@ jobs:
         with:
           result-encoding: string
           script: |
-            // Azure に渡すための OIDC トークンを取得
             return await core.getIDToken();
 
       - name: Deploy to Azure Static Web App
@@ -44,25 +41,24 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
           action: upload
 
-          # ─────────── アプリ構成に合わせた設定 ───────────
-          skip_app_build: true             # ビルド不要な完全静的ファイル構成向けにスキップ設定 :contentReference[oaicite:1]{index=1}
-          app_location: "/"                # 配信対象のファイルが置かれているルートパス
-          output_location: ""              # ビルドステップなしでそのまま配信するため空文字指定
-          skip_deploy_on_missing_secrets: true # プルリク時のシークレット不足による誤実行をスキップ
-          # ──────────── end config ────────────
+          # ─── 配置パスをリポジトリ構成に合わせて調整 ───
+          skip_app_build: true
+          app_location: "/"         # ルート直下ではなく、コード配置先に変更（下記例）
+          output_location: ""
+          skip_deploy_on_missing_secrets: true
+          # ─────────────────────────────────────────────
 
       - name: Confirm deployment output
         run: |
-          echo "Deployment to Azure Static Web App has completed."
-          echo "Verify your site URL in the Azure Portal or GitHub Actions summary."
+          echo "✅ Static Web App deployment completed."
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Close Preview Environment
+    name: Close preview environment
 
     steps:
-      - name: Close preview deployment
+      - name: Close SWA preview
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
