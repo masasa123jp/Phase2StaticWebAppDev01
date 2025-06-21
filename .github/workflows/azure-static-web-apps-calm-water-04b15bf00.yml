@@ -1,62 +1,64 @@
-name: Azure Static Web Apps CI/CD (Calm Water)
+name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]        # main ブランチへの push 実行
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches: [main]
 
 jobs:
   build_and_deploy_job:
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push' ||
+        (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Calm Water
+    name: Build and Deploy Static Web App
 
     permissions:
-      id-token: write    # OIDCトークン取得に必要
-      contents: read     # リポジトリ読み取りに必要
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: true  # サブモジュールを使用する場合に取得
-          lfs: false        # LFSは不要なら false
+          submodules: true
+          lfs: false
 
-      - name: Get OIDC Id Token
+      - name: Get OIDC Token
         uses: actions/github-script@v6
         id: idtoken
         with:
           result-encoding: string
           script: |
-            // GitHub OIDCトークンを取得
             return await core.getIDToken();
 
-      - name: Build and Deploy to Azure SWA
+      - name: Deploy to Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          action: upload                         # デプロイアクションを指定
-          
-          # ─────────── 静的サイト向け設定 ───────────
-          skip_app_build: true                   # Oryx によるビルドチェック回避
-          app_location: "/"                      # 配信対象はリポジトリルート
-          output_location: ""                    # ビルド不要でそのまま配信
-          # ── PRからビルド→デプロイ処理を除外 ──
-          skip_deploy_on_missing_secrets: true   # シークレット未設定時はデプロイをスキップ :contentReference[oaicite:3]{index=3}
+          action: upload
+
+          # ─── 配置パスをリポジトリ構成に合わせて調整 ───
+          skip_app_build: true
+          app_location: "/"         # ルート直下ではなく、コード配置先に変更（下記例）
+          output_location: ""
+          skip_deploy_on_missing_secrets: true
+          # ─────────────────────────────────────────────
+
+      - name: Confirm deployment output
+        run: |
+          echo "✅ Static Web App deployment completed."
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Close Pull Request Job
+    name: Close preview environment
+
     steps:
-      - name: Close SWA preview environment
+      - name: Close SWA preview
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 }}
