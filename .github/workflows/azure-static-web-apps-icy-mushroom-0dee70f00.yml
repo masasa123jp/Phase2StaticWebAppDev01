@@ -47,7 +47,7 @@ jobs:
         with:
           # Azure Portal の Manage deployment token を
           # secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_WATER_04B15BF00 に登録済み
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_WAVE_0CE63D300 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ICY_MUSHROOM_0DEE70F00 }}
           action: upload
           github_id_token: ${{ steps.idtoken.outputs.result }}
 
